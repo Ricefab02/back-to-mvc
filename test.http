@@ -1,0 +1,10 @@
+@server = http://localhost:8000
+
+### GET user by id
+GET {{server}}/users/1
+
+### GET post by id
+GET {{server}}/posts/1
+
+### GET posts
+GET {{server}}/posts
