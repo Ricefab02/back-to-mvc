@@ -14,24 +14,43 @@ app.listen(process.env.PORT, (err) => {
 
 ///////////////////////////////////////////////////////////
 
-// all in one:
 // parse request
-// db query
-// response construction
 
-app.get('/users/:userId', (req, res) => {
-  const userId = parseInt(req.params.userId);
-  db.query('select * from users where user_id = ?', [userId], (err, results) => {
+const extractUserId = (req, res, next) => {
+  req.userId = parseInt(req.params.userId);
+  next();
+};
+
+// db query
+
+const findUserById = (req, res, next) => {
+  db.query('select * from users where user_id = ?', [req.userId], (err, results) => {
     if (err) {
       console.log(err);
-      return res.sendStatus(500);
+      res.sendStatus(500);
     }
-    if (results.length === 0) {
-      return res.sendStatus(404);
+    else {
+      req.data = results[0];
+      next();
     }
-    res.json(results[0]);
   })
-});
+};
+
+// response construction
+
+const sendIfExists = (req, res) => {
+  const { data } = req;
+
+  if (data == null) {
+    return res.sendStatus(404);
+  }
+
+  res.json(data);
+};
+
+// using middleware
+
+app.get('/users/:userId', extractUserId, findUserById, sendIfExists);
 
 ///////////////////////////////////////////////////////////
 
