@@ -12,10 +12,23 @@ app.listen(process.env.PORT, (err) => {
   console.log(`server listening on port ${process.env.PORT}`)
 });
 
+///////////////////////////////////////////////////////////
+
+// controllers to parse request
+
 const extractUserId = (req, res, next) => {
   req.userId = parseInt(req.params.userId);
   next();
 };
+
+const extractPostId = (req, res, next) => {
+  req.postId = parseInt(req.params.postId);
+  next();
+};
+
+///////////////////////////////////////////////////////////
+
+// controllers to retrieve users
 
 const findUserById = (req, res, next) => {
   db.query('select * from users where user_id = ?', [req.userId], (err, results) => {
@@ -30,21 +43,19 @@ const findUserById = (req, res, next) => {
   })
 };
 
-const sendIfExists = (req, res) => {
-  const { data } = req;
+// controllers to retrieve posts
 
-  if (data == null) {
-    return res.sendStatus(404);
-  }
-
-  res.json(data);
-};
-
-app.get('/users/:userId', extractUserId, findUserById, sendIfExists);
-
-const extractPostId = (req, res, next) => {
-  req.postId = parseInt(req.params.postId);
-  next();
+const getAllPosts = (req, res, next) => {
+  db.query('select * from posts', (err, results) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+    }
+    else {
+      req.data = results;
+      next();
+    }
+  })
 };
 
 const findPostById = (req, res, next) => {
@@ -60,21 +71,18 @@ const findPostById = (req, res, next) => {
   })
 };
 
-app.get('/posts/:postId', extractPostId, findPostById, sendIfExists);
-
 ///////////////////////////////////////////////////////////
 
-const getAllPosts = (req, res, next) => {
-  db.query('select * from posts', (err, results) => {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
-    }
-    else {
-      req.data = results;
-      next();
-    }
-  })
+// data representation: JSON views
+
+const sendIfExists = (req, res) => {
+  const { data } = req;
+
+  if (data == null) {
+    return res.sendStatus(404);
+  }
+
+  res.json(data);
 };
 
 const send = (req, res) => {
@@ -83,6 +91,12 @@ const send = (req, res) => {
   res.json(data);
 };
 
-app.get('/posts', getAllPosts, send);
-
 ///////////////////////////////////////////////////////////
+
+// it's a wonderful life
+
+app.get('/users/:userId', extractUserId, findUserById, sendIfExists);
+
+app.get('/posts/:postId', extractPostId, findPostById, sendIfExists);
+
+app.get('/posts', getAllPosts, send);
