@@ -12,16 +12,10 @@ app.listen(process.env.PORT, (err) => {
   console.log(`server listening on port ${process.env.PORT}`)
 });
 
-///////////////////////////////////////////////////////////
-
-// parse request
-
 const extractUserId = (req, res, next) => {
   req.userId = parseInt(req.params.userId);
   next();
 };
-
-// db query
 
 const findUserById = (req, res, next) => {
   db.query('select * from users where user_id = ?', [req.userId], (err, results) => {
@@ -36,8 +30,6 @@ const findUserById = (req, res, next) => {
   })
 };
 
-// response construction
-
 const sendIfExists = (req, res) => {
   const { data } = req;
 
@@ -48,11 +40,11 @@ const sendIfExists = (req, res) => {
   res.json(data);
 };
 
-// using middleware
-
 app.get('/users/:userId', extractUserId, findUserById, sendIfExists);
 
 ///////////////////////////////////////////////////////////
+
+// let's do it again
 
 app.get('/posts/:postId', (req, res) => {
   const postId = parseInt(req.params.postId);
@@ -67,6 +59,8 @@ app.get('/posts/:postId', (req, res) => {
     res.json(results[0]);
   })
 });
+
+///////////////////////////////////////////////////////////
 
 app.get('/posts', (req, res) => {
   db.query('select * from posts', (err, results) => {
