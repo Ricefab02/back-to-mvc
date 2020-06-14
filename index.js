@@ -44,21 +44,31 @@ app.get('/users/:userId', extractUserId, findUserById, sendIfExists);
 
 ///////////////////////////////////////////////////////////
 
-// let's do it again
+// parse request
 
-app.get('/posts/:postId', (req, res) => {
-  const postId = parseInt(req.params.postId);
-  db.query('select * from posts where post_id = ?', [postId], (err, results) => {
+const extractPostId = (req, res, next) => {
+  req.postId = parseInt(req.params.postId);
+  next();
+};
+
+// db query
+
+const findPostById = (req, res, next) => {
+  db.query('select * from posts where post_id = ?', [req.postId], (err, results) => {
     if (err) {
       console.log(err);
-      return res.sendStatus(500);
+      res.sendStatus(500);
     }
-    if (results.length === 0) {
-      return res.sendStatus(404);
+    else {
+      req.data = results[0];
+      next();
     }
-    res.json(results[0]);
   })
-});
+};
+
+// response construction... already exists!
+
+app.get('/posts/:postId', extractPostId, findPostById, sendIfExists);
 
 ///////////////////////////////////////////////////////////
 
