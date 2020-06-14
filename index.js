@@ -42,16 +42,10 @@ const sendIfExists = (req, res) => {
 
 app.get('/users/:userId', extractUserId, findUserById, sendIfExists);
 
-///////////////////////////////////////////////////////////
-
-// parse request
-
 const extractPostId = (req, res, next) => {
   req.postId = parseInt(req.params.postId);
   next();
 };
-
-// db query
 
 const findPostById = (req, res, next) => {
   db.query('select * from posts where post_id = ?', [req.postId], (err, results) => {
@@ -66,11 +60,11 @@ const findPostById = (req, res, next) => {
   })
 };
 
-// response construction... already exists!
-
 app.get('/posts/:postId', extractPostId, findPostById, sendIfExists);
 
 ///////////////////////////////////////////////////////////
+
+// last one ;)
 
 app.get('/posts', (req, res) => {
   db.query('select * from posts', (err, results) => {
@@ -81,3 +75,5 @@ app.get('/posts', (req, res) => {
     res.json(results);
   })
 });
+
+///////////////////////////////////////////////////////////
