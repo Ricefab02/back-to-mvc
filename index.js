@@ -12,6 +12,13 @@ app.listen(process.env.PORT, (err) => {
   console.log(`server listening on port ${process.env.PORT}`)
 });
 
+///////////////////////////////////////////////////////////
+
+// all in one:
+// parse request
+// db query
+// response construction
+
 app.get('/users/:userId', (req, res) => {
   const userId = parseInt(req.params.userId);
   db.query('select * from users where user_id = ?', [userId], (err, results) => {
@@ -25,6 +32,8 @@ app.get('/users/:userId', (req, res) => {
     res.json(results[0]);
   })
 });
+
+///////////////////////////////////////////////////////////
 
 app.get('/posts/:postId', (req, res) => {
   const postId = parseInt(req.params.postId);
