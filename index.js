@@ -64,16 +64,25 @@ app.get('/posts/:postId', extractPostId, findPostById, sendIfExists);
 
 ///////////////////////////////////////////////////////////
 
-// last one ;)
-
-app.get('/posts', (req, res) => {
+const getAllPosts = (req, res, next) => {
   db.query('select * from posts', (err, results) => {
     if (err) {
       console.log(err);
-      return res.sendStatus(500);
+      res.sendStatus(500);
     }
-    res.json(results);
+    else {
+      req.data = results;
+      next();
+    }
   })
-});
+};
+
+const send = (req, res) => {
+  const { data } = req;
+
+  res.json(data);
+};
+
+app.get('/posts', getAllPosts, send);
 
 ///////////////////////////////////////////////////////////
